@@ -2,10 +2,10 @@
 
 #include "kore/shader.h"
 #include "kore/shape.hpp"
-//#include "camera_3D.hpp"
 #include "kore/camera_ortho.hpp"
 #include "kore/IScene.hpp"
 #include "kore/context.hpp"
+#include "boid.hpp"
 
 class MainScene : public IScene {
     public:
@@ -23,8 +23,8 @@ class MainScene : public IScene {
 
     private:
         Shader boidShader;
-        Triangle triangle;
-
+        //Triangle triangle;
+        Boid boid;
         CameraOrtho camera;
 
         float lastX = ctx.win_width / 2.0f;

@@ -23,6 +23,7 @@ public:
     Shader(const char* vertexPath, const char* fragmentPath)
     {
         fs::path p = fs::current_path().parent_path() / "shaders";
+        std::cout << p << std::endl;
         fs::path vs = p / vertexPath;
         fs::path fs = p / fragmentPath;
 

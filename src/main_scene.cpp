@@ -1,5 +1,5 @@
 #include "main_scene.hpp"
-
+#include "boid.hpp"
 
 
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -11,10 +11,13 @@ MainScene::MainScene(Context &ctx) : ctx(ctx)
     //glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     boidShader = Shader("shader.vs", "shader.fs");
     camera = CameraOrtho(glm::vec3(0.0f, 0.0f, 0.0f), ctx.win_width, ctx.win_height, true);
-    
-    triangle.transform.position.x = ctx.win_width / 2;
-    triangle.transform.position.y = ctx.win_height / 2;
-    triangle.transform.scale += 20;  
+    srand (time(NULL));
+    int randomx = rand() % static_cast<int>(ctx.win_width) + 0;
+    int randomy = rand() % static_cast<int>(ctx.win_width) + 0;
+    std::cout << randomx << std::endl;
+    boid.transform.position.x = static_cast<float>(randomx);
+    boid.transform.position.y = static_cast<float>(randomy);
+    boid.transform.scale += 20;
 }
 
 void MainScene::update()
@@ -23,7 +26,22 @@ void MainScene::update()
     deltaTime = currentTime - lastFrame;
     lastFrame = currentTime;
 
-    triangle.render(boidShader, camera);
+    boidShader.use();
+    boidShader.set_float("time", currentTime);
+
+    boid.transform.position.x += boid.velocity;
+
+    if (boid.transform.position.x >= ctx.win_width)
+    {
+        boid.transform.position.x = 0;
+        
+    }
+    if (boid.transform.position.y >= ctx.win_height)
+    {
+        boid.transform.position.y = 0;
+    }
+
+    boid.render(boidShader, camera);
 }
 
 void MainScene::scene_clear()

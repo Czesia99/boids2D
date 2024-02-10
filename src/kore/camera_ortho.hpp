@@ -34,8 +34,6 @@ class CameraOrtho : public ICamera {
         glm::mat4 get_projection_matrix() const
         {
             return glm::ortho(0.f, width, 0.f, height, -1.f, 1.f);
-            //return glm::ortho(-2.0f, +2.0f, -1.5f, +1.5f, 0.1f, 100.0f);
-            //return glm::ortho(-(width / 2.0f), width / 2.0f, height / 2.0f, -(height / 2.0f), -1.0f, 10.0f);
         }
 
         void process_mouse_scroll(float yoffset)
