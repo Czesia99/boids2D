@@ -11,12 +11,15 @@ MainScene::MainScene(Context &ctx) : ctx(ctx)
     //glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     boidShader = Shader("shader.vs", "shader.fs");
     camera = CameraOrtho(glm::vec3(0.0f, 0.0f, 0.0f), ctx.win_width, ctx.win_height, true);
+
+    
     srand (time(NULL));
     int randomx = rand() % static_cast<int>(ctx.win_width) + 0;
     int randomy = rand() % static_cast<int>(ctx.win_width) + 0;
     std::cout << randomx << std::endl;
-    boid.transform.position.x = static_cast<float>(randomx);
-    boid.transform.position.y = static_cast<float>(randomy);
+    glm::vec2 pos(static_cast<float>(randomx), static_cast<float>(randomy));
+
+    boid = Boid(pos);
     boid.transform.scale += 20;
 }
 
@@ -30,6 +33,7 @@ void MainScene::update()
     boidShader.set_float("time", currentTime);
 
     boid.transform.position.x += boid.velocity;
+    boid.velocity += boid.acceleration;
 
     if (boid.transform.position.x >= ctx.win_width)
     {
