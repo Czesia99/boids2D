@@ -20,7 +20,8 @@ class MainScene : public IScene {
 
     public:
         Context &ctx;
-        BoidManager manager;
+        std::unique_ptr<BoidManager> manager;
+        // BoidManager manager;
 
     private:
         Shader boidShader;

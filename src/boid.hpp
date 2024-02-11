@@ -27,17 +27,20 @@ class Boid {
 
 class BoidManager {
     public:
+
         BoidManager(Context &ctx, int nb = 20) : ctx(ctx), nb_boids(nb) {
             srand (time(NULL));
+            create_boids();
         };
-    
+
+
         void create_boids()
         {
             for (int i = 0; i < nb_boids; i++)
             {
                 float velocity = random_float(-3, 3);
                 
-                glm::vec2 pos(random_float(0, width), random_float(0, height));
+                glm::vec2 pos(random_float(0, ctx.win_width), random_float(0, ctx.win_height));
                 boids.push_back(Boid(pos, velocity));
             }
         }
