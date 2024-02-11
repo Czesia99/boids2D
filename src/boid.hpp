@@ -34,33 +34,24 @@ class BoidManager {
             create_boids();
         };
 
-
-        void create_boids()
-        {
-            for (int i = 0; i < nb_boids; i++)
-            {
-                glm::vec2 velocity (random_float(-3, 3), random_float(-3, 3));
-                
-                glm::vec2 pos(random_float(0, ctx.win_width), random_float(0, ctx.win_height));
-                boids.push_back(Boid(pos, velocity));
-            }
-        }
-
         void update() {
             for (int i = 0; i < nb_boids; i++)
             {
                 boids[i].shape.transform.position.x += boids[i].velocity.x;
                 boids[i].shape.transform.position.y += boids[i].velocity.y;
                 boids[i].velocity += boids[i].acceleration;
-                
-                if (boids[i].shape.transform.position.x >= ctx.win_width)
-                {
-                    boids[i].shape.transform.position.x = 0;
-                }
-                if (boids[i].shape.transform.position.y >= ctx.win_height)
-                {
-                    boids[i].shape.transform.position.y = 0;
-                }
+
+                auto &position = boids[i].shape.transform.position;
+
+                if (position.x >= ctx.win_width)
+                    position.x -= ctx.win_width;
+                else if (position.x < 0)
+                    position.x += ctx.win_width;
+
+                if (position.y >= ctx.win_height)
+                    position.y -= ctx.win_height;
+                else if (position.y < 0)
+                    position.y += ctx.win_height;
             }
         }
 
@@ -88,6 +79,16 @@ class BoidManager {
         Context &ctx;
         int nb_boids;
         std::vector<Boid> boids;
-        float width;
-        float height;
+
+    private:
+        void create_boids()
+        {
+            for (int i = 0; i < nb_boids; i++)
+            {
+                glm::vec2 velocity (random_float(-3, 3), random_float(-3, 3));
+                
+                glm::vec2 pos(random_float(0, ctx.win_width), random_float(0, ctx.win_height));
+                boids.push_back(Boid(pos, velocity));
+            }
+        }
 };
