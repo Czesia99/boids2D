@@ -20,6 +20,7 @@ class MainScene : public IScene {
 
     public:
         Context &ctx;
+        BoidManager manager;
 
     private:
         Shader boidShader;
