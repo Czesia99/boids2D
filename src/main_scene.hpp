@@ -20,13 +20,11 @@ class MainScene : public IScene {
 
     public:
         Context &ctx;
-        std::unique_ptr<BoidManager> manager;
-        // BoidManager manager;
+        
 
     private:
         Shader boidShader;
-        //Triangle triangle;
-        Boid boid;
+        std::unique_ptr<BoidManager> manager;
         CameraOrtho camera;
 
         float lastX = ctx.win_width / 2.0f;

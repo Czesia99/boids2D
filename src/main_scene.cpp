@@ -11,14 +11,6 @@ MainScene::MainScene(Context &ctx) : ctx(ctx)
     //glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     boidShader = Shader("shader.vs", "shader.fs");
     camera = CameraOrtho(glm::vec3(0.0f, 0.0f, 0.0f), ctx.win_width, ctx.win_height, true);
-    srand (time(NULL));
-    int randomx = rand() % static_cast<int>(ctx.win_width) + 0;
-    int randomy = rand() % static_cast<int>(ctx.win_width) + 0;
-    std::cout << randomx << std::endl;
-    std::cout << randomy << std::endl;
-    glm::vec2 pos(static_cast<float>(randomx), static_cast<float>(randomy));
-    boid = Boid(pos);
-    //manager = BoidManager(ctx, 20);
     manager = std::make_unique<BoidManager>(ctx, 20);
 }
 
@@ -31,20 +23,6 @@ void MainScene::update()
     boidShader.use();
     boidShader.set_float("time", currentTime);
 
-    boid.shape.transform.position.x += boid.velocity;
-    boid.velocity += boid.acceleration;
-
-    if (boid.shape.transform.position.x >= ctx.win_width)
-    {
-        boid.shape.transform.position.x = 0;
-        
-    }
-    if (boid.shape.transform.position.y >= ctx.win_height)
-    {
-        boid.shape.transform.position.y = 0;
-    }
-
-    //boid.render(boidShader, camera);
     manager->update();
     manager->render(boidShader, camera);
 }

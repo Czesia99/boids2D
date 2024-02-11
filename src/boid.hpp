@@ -11,10 +11,11 @@ class Boid {
         Triangle shape;
         
 
-        float velocity = 3.0f;
+        glm::vec2 velocity = {0.0f, 0.0f};
+        //float velocity = 3.0f;
         float acceleration = 0.0f;
 
-        Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), float vel = 2) {
+        Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), glm::vec2 vel = glm::vec2(0.0f, 0.0f)) {
             velocity = vel;
             shape.transform.position.x = pos.x;
             shape.transform.position.y = pos.y;
@@ -38,7 +39,7 @@ class BoidManager {
         {
             for (int i = 0; i < nb_boids; i++)
             {
-                float velocity = random_float(-3, 3);
+                glm::vec2 velocity (random_float(-3, 3), random_float(-3, 3));
                 
                 glm::vec2 pos(random_float(0, ctx.win_width), random_float(0, ctx.win_height));
                 boids.push_back(Boid(pos, velocity));
@@ -48,8 +49,10 @@ class BoidManager {
         void update() {
             for (int i = 0; i < nb_boids; i++)
             {
-                boids[i].shape.transform.position.x += boids[i].velocity;
+                boids[i].shape.transform.position.x += boids[i].velocity.x;
+                boids[i].shape.transform.position.y += boids[i].velocity.y;
                 boids[i].velocity += boids[i].acceleration;
+                
                 if (boids[i].shape.transform.position.x >= ctx.win_width)
                 {
                     boids[i].shape.transform.position.x = 0;
