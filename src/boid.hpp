@@ -13,7 +13,7 @@ class Boid {
 
         glm::vec2 velocity = {0.0f, 0.0f};
         //float velocity = 3.0f;
-        float acceleration = 0.0f;
+        glm::vec2 acceleration = {0.0f, 0.0f};
 
         Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), glm::vec2 vel = glm::vec2(0.0f, 0.0f)) {
             velocity = vel;
@@ -22,25 +22,29 @@ class Boid {
             shape.transform.scale += 20;
         };
     
-        void align(std::vector<Boid> boids)
+        glm::vec2 align(std::vector<Boid> boids)
         {
-            float perception_radius = 10;
+            float perception_radius = 100;
             int total = 0;
             glm::vec2 avg;
             for (int i = 0; i < boids.size(); i++)
             {
                 //glm::vec2 distance(shape.transform.position.x - boids[i].shape.transform.position.x, shape.transform.position.y - boids[i].shape.transform.position.y);
                 float d = glm::distance(shape.transform.position, boids[i].shape.transform.position);
-                if (d <= perception_radius) {
+                //std::cout << "distance : " << d << std::endl;
+                if (d > 5 && d <= perception_radius) {
                     avg += boids[i].velocity;
                     total++;
                 }
             }
+            std::cout <<"total: " << total << std::endl;
             if (total > 0) {
                 avg /= total;
                 avg -= velocity;
                 velocity = avg;
+
             }
+            return avg;
         }
     private:
         //Transform transform;     
@@ -73,7 +77,7 @@ class BoidManager {
                 else if (position.y < 0)
                     position.y += ctx.win_height;
 
-                //boids[i].align(boids);
+                boids[i].acceleration = boids[i].align(boids);
             }
         }
 
