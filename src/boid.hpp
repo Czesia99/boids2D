@@ -22,6 +22,26 @@ class Boid {
             shape.transform.scale += 20;
         };
     
+        void align(std::vector<Boid> boids)
+        {
+            float perception_radius = 10;
+            int total = 0;
+            glm::vec2 avg;
+            for (int i = 0; i < boids.size(); i++)
+            {
+                //glm::vec2 distance(shape.transform.position.x - boids[i].shape.transform.position.x, shape.transform.position.y - boids[i].shape.transform.position.y);
+                float d = glm::distance(shape.transform.position, boids[i].shape.transform.position);
+                if (d <= perception_radius) {
+                    avg += boids[i].velocity;
+                    total++;
+                }
+            }
+            if (total > 0) {
+                avg /= total;
+                avg -= velocity;
+                velocity = avg;
+            }
+        }
     private:
         //Transform transform;     
 };
@@ -52,6 +72,8 @@ class BoidManager {
                     position.y -= ctx.win_height;
                 else if (position.y < 0)
                     position.y += ctx.win_height;
+
+                //boids[i].align(boids);
             }
         }
 
