@@ -8,6 +8,7 @@
 int main()
 {
     Context ctx(800.0f, 600.0f, "Boids2D");
+    glfwSwapInterval(1);
 
     MainScene scene(ctx);
     IScene *current_scene = &scene;

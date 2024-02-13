@@ -6,6 +6,9 @@
 #include "kore/ICamera.hpp"
 #include "kore/context.hpp"
 
+#include <glm/gtc/random.hpp>
+#include <math.h>
+
 class Boid {
     public:
         Triangle shape;
@@ -14,15 +17,15 @@ class Boid {
         glm::vec2 velocity = {0.0f, 0.0f};
         //float velocity = 3.0f;
         glm::vec2 acceleration = {0.0f, 0.0f};
-        float perception_radius = 100;
+        float perception_radius = 75;
         glm::vec2 max_steering = {3.0f, 3.0f};
-        glm::vec2 min_steering = {3.0f, 3.0f};
+        glm::vec2 min_steering = {-3.0f, -3.0f};
 
         Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), glm::vec2 vel = glm::vec2(0.0f, 0.0f)) {
             velocity = vel;
             shape.transform.position.x = pos.x;
             shape.transform.position.y = pos.y;
-            shape.transform.scale += 20;
+            shape.transform.scale += 20.0f;
         };
 
     private:
@@ -38,21 +41,18 @@ class BoidManager {
         };
 
         void update() {
+            // std::cout << "nbboids = " << nb_boids << std::endl;
             for (int i = 0; i < nb_boids; i++)
             {
+                boids[i].acceleration = align(i, boids);
+                boids[i].velocity += boids[i].acceleration * 0.1f;
+                boids[i].velocity = glm::normalize(boids[i].velocity) * 2.0f;
+
                 boids[i].shape.transform.position.x += boids[i].velocity.x;
                 boids[i].shape.transform.position.y += boids[i].velocity.y;
-
-                boids[i].velocity += boids[i].acceleration;
-
-                
+                boids[i].shape.transform.rotation.z = atan2(boids[i].velocity.y, boids[i].velocity.x) - M_PI/2.0f;
 
                 edges(boids[i]);
-                align(i, boids);
-
-                boids[i].acceleration = align(i, boids);
-                //glm::normalize(boids[i].acceleration);
-                //std::cout << "acceleration = " << boids[i].acceleration.x << boids[i].acceleration.y << std::endl;
             }
         }
 
@@ -90,34 +90,9 @@ class BoidManager {
             if (total > 0)
             {
                 steering /= total;
-                steering -= boids[i].velocity;
-
-                if (steering.x > boids[i].max_steering.x)
-                {
-                    new_steering.x = boids[i].max_steering.x;
-                    //boids[i].velocity.x = boids[i].max_steering.x;
-                } else { new_steering.x = steering.x; }
-                if (steering.y > boids[i].max_steering.y)
-                {
-                    new_steering.y = boids[i].max_steering.y;
-                } else { new_steering.y = steering.y; }
-
-                if (steering.x < boids[i].min_steering.x)
-                {
-                    new_steering.x = boids[i].min_steering.x;
-                } else {new_steering.x = steering.x;}
-
-                if (steering.y < boids[i].min_steering.y)
-                {
-                    new_steering.y = boids[i].min_steering.y;
-                } else {new_steering.y = steering.y;}
-
-
-                boids[i].velocity = new_steering;
-                
+                steering -= boids[i].velocity;  
             }
-            std::cout << "steering x = " << new_steering.x << "steering y = " << new_steering.y << std::endl;
-            return new_steering;
+            return steering;
         }
 
         void render(Shader shader, const ICamera &camera)
@@ -146,8 +121,7 @@ class BoidManager {
         {
             for (int i = 0; i < nb_boids; i++)
             {
-                glm::vec2 velocity (random_float(-3, 3), random_float(-3, 3));
-                
+                glm::vec2 velocity = glm::circularRand(5.0f);
                 glm::vec2 pos(random_float(0, ctx.win_width), random_float(0, ctx.win_height));
                 boids.push_back(Boid(pos, velocity));
             }

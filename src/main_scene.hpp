@@ -24,7 +24,8 @@ class MainScene : public IScene {
 
     private:
         Shader boidShader;
-        std::unique_ptr<BoidManager> manager;
+        //std::unique_ptr<BoidManager> manager;
+        BoidManager *manager;
         CameraOrtho camera;
 
         float lastX = ctx.win_width / 2.0f;
