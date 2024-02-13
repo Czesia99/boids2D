@@ -14,6 +14,9 @@ class Boid {
         glm::vec2 velocity = {0.0f, 0.0f};
         //float velocity = 3.0f;
         glm::vec2 acceleration = {0.0f, 0.0f};
+        float perception_radius = 100;
+        glm::vec2 max_steering = {3.0f, 3.0f};
+        glm::vec2 min_steering = {3.0f, 3.0f};
 
         Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), glm::vec2 vel = glm::vec2(0.0f, 0.0f)) {
             velocity = vel;
@@ -21,31 +24,7 @@ class Boid {
             shape.transform.position.y = pos.y;
             shape.transform.scale += 20;
         };
-    
-        glm::vec2 align(std::vector<Boid> boids)
-        {
-            float perception_radius = 100;
-            int total = 0;
-            glm::vec2 avg;
-            for (int i = 0; i < boids.size(); i++)
-            {
-                //glm::vec2 distance(shape.transform.position.x - boids[i].shape.transform.position.x, shape.transform.position.y - boids[i].shape.transform.position.y);
-                float d = glm::distance(shape.transform.position, boids[i].shape.transform.position);
-                //std::cout << "distance : " << d << std::endl;
-                if (d > 5 && d <= perception_radius) {
-                    avg += boids[i].velocity;
-                    total++;
-                }
-            }
-            std::cout <<"total: " << total << std::endl;
-            if (total > 0) {
-                avg /= total;
-                avg -= velocity;
-                velocity = avg;
 
-            }
-            return avg;
-        }
     private:
         //Transform transform;     
 };
@@ -63,22 +42,82 @@ class BoidManager {
             {
                 boids[i].shape.transform.position.x += boids[i].velocity.x;
                 boids[i].shape.transform.position.y += boids[i].velocity.y;
+
                 boids[i].velocity += boids[i].acceleration;
 
-                auto &position = boids[i].shape.transform.position;
+                
 
-                if (position.x >= ctx.win_width)
-                    position.x -= ctx.win_width;
-                else if (position.x < 0)
-                    position.x += ctx.win_width;
+                edges(boids[i]);
+                align(i, boids);
 
-                if (position.y >= ctx.win_height)
-                    position.y -= ctx.win_height;
-                else if (position.y < 0)
-                    position.y += ctx.win_height;
-
-                boids[i].acceleration = boids[i].align(boids);
+                boids[i].acceleration = align(i, boids);
+                //glm::normalize(boids[i].acceleration);
+                //std::cout << "acceleration = " << boids[i].acceleration.x << boids[i].acceleration.y << std::endl;
             }
+        }
+
+        void edges(Boid &boid)
+        {
+            auto &position = boid.shape.transform.position;
+
+            if (position.x >= ctx.win_width)
+                position.x -= ctx.win_width;
+            else if (position.x < 0)
+                position.x += ctx.win_width;
+
+            if (position.y >= ctx.win_height)
+                position.y -= ctx.win_height;
+            else if (position.y < 0)
+                position.y += ctx.win_height;
+        }
+
+        glm::vec2 align(int i, std::vector<Boid> &boids)
+        {
+            glm::vec2 steering;
+            glm::vec2 new_steering;
+            
+            int total = 0;
+
+            for (int j = 0; j < nb_boids; j++)
+            {
+                float d = glm::distance(boids[i].shape.transform.position, boids[j].shape.transform.position);
+                if (i != j && d <= boids[i].perception_radius)
+                {
+                    steering += boids[j].velocity;
+                    total++;
+                }
+            }
+            if (total > 0)
+            {
+                steering /= total;
+                steering -= boids[i].velocity;
+
+                if (steering.x > boids[i].max_steering.x)
+                {
+                    new_steering.x = boids[i].max_steering.x;
+                    //boids[i].velocity.x = boids[i].max_steering.x;
+                } else { new_steering.x = steering.x; }
+                if (steering.y > boids[i].max_steering.y)
+                {
+                    new_steering.y = boids[i].max_steering.y;
+                } else { new_steering.y = steering.y; }
+
+                if (steering.x < boids[i].min_steering.x)
+                {
+                    new_steering.x = boids[i].min_steering.x;
+                } else {new_steering.x = steering.x;}
+
+                if (steering.y < boids[i].min_steering.y)
+                {
+                    new_steering.y = boids[i].min_steering.y;
+                } else {new_steering.y = steering.y;}
+
+
+                boids[i].velocity = new_steering;
+                
+            }
+            std::cout << "steering x = " << new_steering.x << "steering y = " << new_steering.y << std::endl;
+            return new_steering;
         }
 
         void render(Shader shader, const ICamera &camera)
@@ -91,13 +130,9 @@ class BoidManager {
 
         float random_float(float min, float max)
         {
-            // this  function assumes max > min, you may want 
-            // more robust error checking for a non-debug build
             assert(max > min); 
             float random = ((float) rand()) / (float) RAND_MAX;
 
-            // generate (in your case) a float between 0 and (4.5-.78)
-            // then add .78, giving you a float between .78 and 4.5
             float range = max - min;  
             return (random*range) + min;
         }
