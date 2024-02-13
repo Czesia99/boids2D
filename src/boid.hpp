@@ -11,9 +11,9 @@
 
 class Boid {
     public:
-        Triangle shape;
+        //Triangle shape;
         
-
+        glm::vec2 position;
         glm::vec2 velocity = {0.0f, 0.0f};
         //float velocity = 3.0f;
         glm::vec2 acceleration = {0.0f, 0.0f};
@@ -23,9 +23,8 @@ class Boid {
 
         Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), glm::vec2 vel = glm::vec2(0.0f, 0.0f)) {
             velocity = vel;
-            shape.transform.position.x = pos.x;
-            shape.transform.position.y = pos.y;
-            shape.transform.scale += 20.0f;
+            position.x = pos.x;
+            position.y = pos.y;
         };
 
     private:
@@ -44,13 +43,16 @@ class BoidManager {
             // std::cout << "nbboids = " << nb_boids << std::endl;
             for (int i = 0; i < nb_boids; i++)
             {
-                boids[i].acceleration = align(i, boids);
-                boids[i].velocity += boids[i].acceleration * 0.1f;
-                boids[i].velocity = glm::normalize(boids[i].velocity) * 2.0f;
+                glm::vec2 sep = separation(i, boids) * 0.3f;
+                glm::vec2 ali = align(i, boids) * 0.01f;
+                glm::vec2 coh = cohesion(i, boids) * 0.004f;
+                boids[i].acceleration = {0.0f, 0.0f};
+                boids[i].acceleration = sep + ali + coh;
+                boids[i].velocity += boids[i].acceleration;
+                boids[i].velocity = glm::normalize(boids[i].velocity) * 3.0f;
 
-                boids[i].shape.transform.position.x += boids[i].velocity.x;
-                boids[i].shape.transform.position.y += boids[i].velocity.y;
-                boids[i].shape.transform.rotation.z = atan2(boids[i].velocity.y, boids[i].velocity.x) - M_PI/2.0f;
+                boids[i].position.x += boids[i].velocity.x;
+                boids[i].position.y += boids[i].velocity.y;
 
                 edges(boids[i]);
             }
@@ -58,7 +60,7 @@ class BoidManager {
 
         void edges(Boid &boid)
         {
-            auto &position = boid.shape.transform.position;
+            auto &position = boid.position;
 
             if (position.x >= ctx.win_width)
                 position.x -= ctx.win_width;
@@ -74,13 +76,11 @@ class BoidManager {
         glm::vec2 align(int i, std::vector<Boid> &boids)
         {
             glm::vec2 steering;
-            glm::vec2 new_steering;
-            
             int total = 0;
 
             for (int j = 0; j < nb_boids; j++)
             {
-                float d = glm::distance(boids[i].shape.transform.position, boids[j].shape.transform.position);
+                float d = glm::distance(boids[i].position, boids[j].position);
                 if (i != j && d <= boids[i].perception_radius)
                 {
                     steering += boids[j].velocity;
@@ -95,11 +95,67 @@ class BoidManager {
             return steering;
         }
 
+        glm::vec2 separation(int i, std::vector<Boid> boids)
+        {
+            glm::vec2 steering;
+            int total = 0;
+
+            for (int j = 0; j < nb_boids; j++)
+            {
+                glm::vec2 diff = (boids[i].position - boids[j].position);
+                float d = glm::length(diff);
+                //float d = glm::distance(boids[i].position, boids[j].position);
+
+                if (i != j && d <= boids[i].perception_radius)
+                {
+                    diff /= d;
+                    steering += diff;
+                    total++;
+                }
+            }
+            if (total > 0)
+            {
+                steering /= total;
+                steering -= boids[i].velocity;
+            }
+            return steering;
+        }
+
+        glm::vec2 cohesion(int i, std::vector<Boid> boids)
+        {
+            glm::vec2 steering;
+            int total = 0;
+
+            for (int j = 0; j < nb_boids; j++)
+            {
+                float d = glm::distance(boids[i].position, boids[j].position);
+                if (i != j && d <= boids[i].perception_radius)
+                {
+                    steering += boids[j].position;
+                    total++;
+                }
+            }
+            if (total > 0)
+            {
+                steering /= total;
+                steering -= boids[i].position;
+                steering -= boids[i].velocity;
+            }
+            return steering;
+        }
+
         void render(Shader shader, const ICamera &camera)
         {
+            shape.transform.scale.x = 20.0f;
+            shape.transform.scale.y = 20.0f;
+            shape.transform.scale.z = 20.0f;
+
             for (int i = 0; i < nb_boids; i++)
             {
-                boids[i].shape.render(shader, camera);
+                shape.transform.position.x = boids[i].position.x;
+                shape.transform.position.y = boids[i].position.y;
+                shape.transform.rotation.z = atan2(boids[i].velocity.y, boids[i].velocity.x) - M_PI/2.0f;
+                shape.render(shader, camera);
             }
         }
 
@@ -115,6 +171,7 @@ class BoidManager {
         Context &ctx;
         int nb_boids;
         std::vector<Boid> boids;
+        Triangle shape;
 
     private:
         void create_boids()

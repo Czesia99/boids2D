@@ -7,7 +7,7 @@
 
 int main()
 {
-    Context ctx(800.0f, 600.0f, "Boids2D");
+    Context ctx(1920.0f, 1080.0f, "Boids2D");
     glfwSwapInterval(1);
 
     MainScene scene(ctx);

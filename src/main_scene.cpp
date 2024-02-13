@@ -12,7 +12,7 @@ MainScene::MainScene(Context &ctx) : ctx(ctx)
     boidShader = Shader("shader.vs", "shader.fs");
     camera = CameraOrtho(glm::vec3(0.0f, 0.0f, 0.0f), ctx.win_width, ctx.win_height, true);
     //manager = std::make_unique<BoidManager>(ctx, 30);
-    manager = new BoidManager(ctx, 30);
+    manager = new BoidManager(ctx, 300);
 }
 
 void MainScene::update()
@@ -30,7 +30,7 @@ void MainScene::update()
 
 void MainScene::scene_clear()
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
