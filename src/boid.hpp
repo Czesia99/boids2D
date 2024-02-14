@@ -11,36 +11,26 @@
 
 class Boid {
     public:
-        //Triangle shape;
-        
         glm::vec2 position;
         glm::vec2 velocity = {0.0f, 0.0f};
-        //float velocity = 3.0f;
         glm::vec2 acceleration = {0.0f, 0.0f};
         float perception_radius = 75;
-        glm::vec2 max_steering = {3.0f, 3.0f};
-        glm::vec2 min_steering = {-3.0f, -3.0f};
 
         Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), glm::vec2 vel = glm::vec2(0.0f, 0.0f)) {
             velocity = vel;
             position.x = pos.x;
             position.y = pos.y;
         };
-
-    private:
-        //Transform transform;     
 };
 
 class BoidManager {
     public:
-
         BoidManager(Context &ctx, int nb = 20) : ctx(ctx), nb_boids(nb) {
             srand (time(NULL));
             create_boids();
         };
 
         void update() {
-            // std::cout << "nbboids = " << nb_boids << std::endl;
             for (int i = 0; i < nb_boids; i++)
             {
                 glm::vec2 sep = separation(i, boids) * 0.3f;
@@ -104,7 +94,6 @@ class BoidManager {
             {
                 glm::vec2 diff = (boids[i].position - boids[j].position);
                 float d = glm::length(diff);
-                //float d = glm::distance(boids[i].position, boids[j].position);
 
                 if (i != j && d <= boids[i].perception_radius)
                 {

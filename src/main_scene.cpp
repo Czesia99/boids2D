@@ -38,56 +38,11 @@ void MainScene::process_input()
 {
     if (glfwGetKey(ctx.window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(ctx.window, true);
-
-    // if (glfwGetKey(ctx.window, GLFW_KEY_W) == GLFW_PRESS)
-    //     camera.process_keyboard(FORWARD, deltaTime);
-    // if (glfwGetKey(ctx.window, GLFW_KEY_S) == GLFW_PRESS)
-    //     camera.process_keyboard(BACKWARD, deltaTime);
-    // if (glfwGetKey(ctx.window, GLFW_KEY_A) == GLFW_PRESS)
-    //     camera.process_keyboard(LEFT, deltaTime);
-    // if (glfwGetKey(ctx.window, GLFW_KEY_D) == GLFW_PRESS)
-    //     camera.process_keyboard(RIGHT, deltaTime);
 }
 
-void MainScene::mouse_callback(GLFWwindow* window, double xposIn, double yposIn) 
-{
-    // float xpos = static_cast<float>(xposIn);
-    // float ypos = static_cast<float>(yposIn);
+void MainScene::mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {}
 
-    // if (firstMouse)
-    // {
-    //     lastX = xpos;
-    //     lastY = ypos;
-    //     firstMouse = false;
-    // }
-
-    // float xoffset = xpos - lastX;
-    // float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-    // lastX = xpos;
-    // lastY = ypos;
-
-    //camera.process_mouse_movement(xoffset, yoffset);
-}
-
-void MainScene::left_click_callback(GLFWwindow* window, int button, int action, int mods)
-{
-        // double xpos, ypos;
-        // glfwGetCursorPos(window, &xpos, &ypos);
-
-        // if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        //     std::cout<< "first if !" << std::endl;
-        //     if(start_btn.isClicked(xpos, ypos)) {
-        //         std::cout<< "button clicked !" << std::endl;
-        //     }
-        // }
-
-        // std::cout << "action = " << action << std::endl;
-        // std::cout << "button = " << button << std::endl;
-        // std::cout << "mods = " << mods << std::endl;
-        // std::cout << "xpos = " << xpos << std::endl;
-        // std::cout << "ypos = " << ypos << std::endl;
-}
+void MainScene::left_click_callback(GLFWwindow* window, int button, int action, int mods) {}
 
 void MainScene::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) 
 {
