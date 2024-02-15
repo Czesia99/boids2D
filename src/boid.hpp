@@ -9,18 +9,11 @@
 #include <glm/gtc/random.hpp>
 #include <math.h>
 
-class Boid {
-    public:
-        glm::vec2 position;
-        glm::vec2 velocity = {0.0f, 0.0f};
-        glm::vec2 acceleration = {0.0f, 0.0f};
-        float perception_radius = 75;
-
-        Boid(glm::vec2 pos = glm::vec2(0.0f, 0.0f), glm::vec2 vel = glm::vec2(0.0f, 0.0f)) {
-            velocity = vel;
-            position.x = pos.x;
-            position.y = pos.y;
-        };
+struct Boid {
+    glm::vec2 position = {0.0f, 0.0f};
+    glm::vec2 velocity = {0.0f, 0.0f};
+    glm::vec2 acceleration = {0.0f, 0.0f};
+    float perception_radius = 75;
 };
 
 class BoidManager {
@@ -29,6 +22,19 @@ class BoidManager {
             srand (time(NULL));
             create_boids();
         };
+
+        void render(Shader shader, const ICamera &camera)
+        {
+            shape.transform.scale = glm::vec3 {20.0f, 20.0f, 20.0f};
+
+            for (int i = 0; i < nb_boids; i++)
+            {
+                shape.transform.position.x = boids[i].position.x;
+                shape.transform.position.y = boids[i].position.y;
+                shape.transform.rotation.z = atan2(boids[i].velocity.y, boids[i].velocity.x) - M_PI/2.0f;
+                shape.render(shader, camera);
+            }
+        }
 
         void update() {
             for (int i = 0; i < nb_boids; i++)
@@ -48,20 +54,11 @@ class BoidManager {
             }
         }
 
-        void edges(Boid &boid)
-        {
-            auto &position = boid.position;
-
-            if (position.x >= ctx.win_width)
-                position.x -= ctx.win_width;
-            else if (position.x < 0)
-                position.x += ctx.win_width;
-
-            if (position.y >= ctx.win_height)
-                position.y -= ctx.win_height;
-            else if (position.y < 0)
-                position.y += ctx.win_height;
-        }
+    private:
+        Context &ctx;
+        int nb_boids;
+        std::vector<Boid> boids;
+        Triangle shape;
 
         glm::vec2 align(int i, std::vector<Boid> &boids)
         {
@@ -133,19 +130,19 @@ class BoidManager {
             return steering;
         }
 
-        void render(Shader shader, const ICamera &camera)
+        void edges(Boid &boid)
         {
-            shape.transform.scale.x = 20.0f;
-            shape.transform.scale.y = 20.0f;
-            shape.transform.scale.z = 20.0f;
+            auto &position = boid.position;
 
-            for (int i = 0; i < nb_boids; i++)
-            {
-                shape.transform.position.x = boids[i].position.x;
-                shape.transform.position.y = boids[i].position.y;
-                shape.transform.rotation.z = atan2(boids[i].velocity.y, boids[i].velocity.x) - M_PI/2.0f;
-                shape.render(shader, camera);
-            }
+            if (position.x >= ctx.win_width)
+                position.x -= ctx.win_width;
+            else if (position.x < 0)
+                position.x += ctx.win_width;
+
+            if (position.y >= ctx.win_height)
+                position.y -= ctx.win_height;
+            else if (position.y < 0)
+                position.y += ctx.win_height;
         }
 
         float random_float(float min, float max)
@@ -156,20 +153,17 @@ class BoidManager {
             float range = max - min;  
             return (random*range) + min;
         }
-        
-        Context &ctx;
-        int nb_boids;
-        std::vector<Boid> boids;
-        Triangle shape;
 
-    private:
         void create_boids()
         {
             for (int i = 0; i < nb_boids; i++)
             {
-                glm::vec2 velocity = glm::circularRand(5.0f);
                 glm::vec2 pos(random_float(0, ctx.win_width), random_float(0, ctx.win_height));
-                boids.push_back(Boid(pos, velocity));
+                glm::vec2 velocity = glm::circularRand(5.0f);
+                Boid b;
+                b.position = pos;
+                b.velocity = velocity;
+                boids.push_back(b);
             }
         }
 };

@@ -8,6 +8,7 @@ project(${PROJECT_TRIANGLE} VERSION 0.1.0)
 #set(CMAKE_CXX_STANDARD 11.4.0)
 
 find_package(OpenGL REQUIRED)
+find_path(STB_INCLUDE_DIRS "stb.h")
 
 set(SRC ./src)
 set(INCLUDE ./include)
