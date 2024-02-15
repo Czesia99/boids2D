@@ -11,7 +11,6 @@ MainScene::MainScene(Context &ctx) : ctx(ctx)
     //glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     boidShader = Shader("shader.vs", "shader.fs");
     camera = CameraOrtho(glm::vec3(0.0f, 0.0f, 0.0f), ctx.win_width, ctx.win_height, true);
-    //manager = std::make_unique<BoidManager>(ctx, 30);
     manager = new BoidManager(ctx, 300);
 }
 
