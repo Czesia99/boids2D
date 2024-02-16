@@ -45,7 +45,7 @@ class BoidManager {
                 boids[i].acceleration = {0.0f, 0.0f};
                 boids[i].acceleration = sep + ali + coh;
                 boids[i].velocity += boids[i].acceleration;
-                boids[i].velocity = glm::normalize(boids[i].velocity) * 3.0f;
+                boids[i].velocity = glm::normalize(boids[i].velocity) * 5.0f;
 
                 boids[i].position.x += boids[i].velocity.x;
                 boids[i].position.y += boids[i].velocity.y;
