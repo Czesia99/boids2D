@@ -18,9 +18,15 @@ struct Boid {
 
 class BoidManager {
     public:
+        float fspeed = 5.0f;
+        float fseparation = 0.3f;
+        float falignment = 0.01f;
+        float fcohesion = 0.004f;
+        int nb_boids;
+    public:
         BoidManager(Context &ctx, int nb = 20) : ctx(ctx), nb_boids(nb) {
             srand (time(NULL));
-            create_boids();
+            create_boids(nb);
         };
 
         void render(Shader shader, const ICamera &camera)
@@ -39,13 +45,14 @@ class BoidManager {
         void update() {
             for (int i = 0; i < nb_boids; i++)
             {
-                glm::vec2 sep = separation(i, boids) * 0.3f;
-                glm::vec2 ali = align(i, boids) * 0.01f;
-                glm::vec2 coh = cohesion(i, boids) * 0.004f;
+                glm::vec2 sep = separation(i, boids) * fseparation;
+                glm::vec2 ali = align(i, boids) * falignment;
+                glm::vec2 coh = cohesion(i, boids) * fcohesion;
+
                 boids[i].acceleration = {0.0f, 0.0f};
                 boids[i].acceleration = sep + ali + coh;
                 boids[i].velocity += boids[i].acceleration;
-                boids[i].velocity = glm::normalize(boids[i].velocity) * 5.0f;
+                boids[i].velocity = glm::normalize(boids[i].velocity) * fspeed;
 
                 boids[i].position.x += boids[i].velocity.x;
                 boids[i].position.y += boids[i].velocity.y;
@@ -54,9 +61,25 @@ class BoidManager {
             }
         }
 
+        void resize_boids_number()
+        {
+            int diff = (boids.size() - nb_boids);
+            if (nb_boids > boids.size())
+            {
+                create_boids(abs(diff));
+            } else {
+                boids.resize(nb_boids);
+            }
+        }
+        void default_fvalues()
+        {
+            fspeed = 5.0f;
+            fseparation = 0.3f;
+            falignment = 0.01f;
+            fcohesion = 0.004f;
+        }
     private:
         Context &ctx;
-        int nb_boids;
         std::vector<Boid> boids;
         Triangle shape;
 
@@ -154,9 +177,9 @@ class BoidManager {
             return (random*range) + min;
         }
 
-        void create_boids()
+        void create_boids(int n)
         {
-            for (int i = 0; i < nb_boids; i++)
+            for (int i = 0; i < n; i++)
             {
                 glm::vec2 pos(random_float(0, ctx.win_width), random_float(0, ctx.win_height));
                 glm::vec2 velocity = glm::circularRand(5.0f);

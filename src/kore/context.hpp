@@ -7,6 +7,10 @@
 
 #include "IScene.hpp"
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 class Context
 {
     public:
@@ -16,16 +20,37 @@ class Context
             win_name = name;
             window = create_window();
             load_glad();
+            set_callbacks();
+            
+
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGui_ImplGlfw_InitForOpenGL(window, true);
+            ImGui_ImplOpenGL3_Init();
         };
         //~Context();
 
-        void set_callbacks(IScene *scene)
+        void set_callbacks()
         {
-            glfwSetWindowUserPointer(window, scene); //set windowindow pointer
+            glfwSetWindowUserPointer(window, this); //set windowindow pointer
             glfwSetFramebufferSizeCallback(window, framebuffer_size_callback_wrapper);
             glfwSetCursorPosCallback(window, mouse_callback_wrapper);
             glfwSetMouseButtonCallback(window, left_click_callback_wrapper);
             glfwSetScrollCallback(window, scroll_callback_wrapper);  
+        }
+
+        void run()
+        {
+            //if (current_scene == nullptr) std::cout << "Must assign a current scene" << std::endl; return;
+            while (!glfwWindowShouldClose(window))
+            {
+                current_scene->scene_clear();
+                current_scene->process_input();
+                current_scene->update();
+
+                glfwSwapBuffers(window);
+                glfwPollEvents();
+            }
         }
 
         GLFWwindow *window;
@@ -33,6 +58,9 @@ class Context
         float win_height;
         float aspect_ratio = win_width / win_height;
         const char *win_name; 
+
+        IScene *current_scene;
+        std::vector<IScene> *scenes;
     
     private:
         GLFWwindow *create_window() {
@@ -63,53 +91,39 @@ class Context
             return 0;
         };
 
-        // void run()
-        // {
-        //     while (!glfwWindowShouldClose(window))
-        //     {
-
-        //         current_scene->scene_clear();
-        //         current_scene->process_input();
-        //         current_scene->update();
-
-        //         glfwSwapBuffers(ctx.window);
-        //         glfwPollEvents();
-        //     }
-        // }
-
         static void framebuffer_size_callback_wrapper(GLFWwindow* window, int width, int height) 
         {
-            IScene* scene = static_cast<IScene*>(glfwGetWindowUserPointer(window));
+            Context* ctx = static_cast<Context*>(glfwGetWindowUserPointer(window));
 
-            if (scene != nullptr) {
-                scene->framebuffer_size_callback(window, width, height);
+            if (ctx->current_scene != nullptr) {
+                ctx->current_scene->framebuffer_size_callback(window, width, height);
             }   
         }
 
         static void mouse_callback_wrapper(GLFWwindow* window, double xpos, double ypos)
         {
-            IScene* scene = static_cast<IScene*>(glfwGetWindowUserPointer(window));
+            Context* ctx = static_cast<Context*>(glfwGetWindowUserPointer(window));
 
-            if (scene != nullptr) {
-                scene->mouse_callback(window, xpos, ypos);
+            if (ctx->current_scene != nullptr) {
+                ctx->current_scene->mouse_callback(window, xpos, ypos);
             }
         }
 
         static void scroll_callback_wrapper(GLFWwindow* window, double xoffset, double yoffset)
         {
-            IScene* scene = static_cast<IScene*>(glfwGetWindowUserPointer(window));
+            Context* ctx = static_cast<Context*>(glfwGetWindowUserPointer(window));
 
-            if (scene != nullptr) {
-                scene->scroll_callback(window, xoffset, yoffset);
+            if (ctx->current_scene != nullptr) {
+                ctx->current_scene->scroll_callback(window, xoffset, yoffset);
             }
         }
 
         static void left_click_callback_wrapper(GLFWwindow* window, int button, int action, int mods) 
         {
-            IScene* scene = static_cast<IScene*>(glfwGetWindowUserPointer(window));
+            Context* ctx = static_cast<Context*>(glfwGetWindowUserPointer(window));
 
-            if (scene != nullptr) {
-                scene->left_click_callback(window, button, action, mods);
+            if (ctx->current_scene != nullptr) {
+                ctx->current_scene->left_click_callback(window, button, action, mods);
             }
 
         }

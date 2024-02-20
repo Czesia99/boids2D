@@ -1,6 +1,9 @@
 #include "main_scene.hpp"
 #include "boid.hpp"
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
@@ -15,6 +18,7 @@ MainScene::MainScene(Context &ctx) : ctx(ctx)
 
 void MainScene::update()
 {
+
     double currentTime = glfwGetTime();
     deltaTime = currentTime - lastFrame;
     lastFrame = currentTime;
@@ -24,6 +28,24 @@ void MainScene::update()
 
     manager->update();
     manager->render(boidShader, camera);
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Settings");
+    ImGui::SliderFloat("Speed", &manager->fspeed, 0.0f, 30.0f);
+    ImGui::SliderFloat("Separation", &manager->fseparation, 0.0f, 1.0f);
+    ImGui::SliderFloat("Alignment", &manager->falignment, 0.0f, 1.0f);
+    ImGui::SliderFloat("Cohesion", &manager->fcohesion, 0.0f, 0.03f);
+    if (ImGui::Button("reset"))
+        manager->default_fvalues();
+    if (ImGui::SliderInt("Boids number", &manager->nb_boids, 0, 500))
+        manager->resize_boids_number();
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MainScene::scene_clear()
