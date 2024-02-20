@@ -41,7 +41,11 @@ class Context
 
         void run()
         {
-            //if (current_scene == nullptr) std::cout << "Must assign a current scene" << std::endl; return;
+            if (current_scene == nullptr) 
+            { 
+                std::cout << "Must assign a current scene" << std::endl; 
+                return;
+            }
             while (!glfwWindowShouldClose(window))
             {
                 current_scene->scene_clear();
