@@ -42,6 +42,7 @@ void MainScene::update()
         manager->default_fvalues();
     if (ImGui::SliderInt("Boids number", &manager->nb_boids, 0, 500))
         manager->resize_boids_number();
+    ImGui::Checkbox("Follow Cursor", &manager->mouse_leader);
     ImGui::End();
 
     ImGui::Render();

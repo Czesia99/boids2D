@@ -19,10 +19,11 @@ struct Boid {
 class BoidManager {
     public:
         float fspeed = 5.0f;
-        float fseparation = 0.3f;
-        float falignment = 0.01f;
-        float fcohesion = 0.004f;
+        float fseparation = 0.4f;
+        float falignment = 0.1f;
+        float fcohesion = 0.006f;
         int nb_boids;
+        bool mouse_leader = false;
     public:
         BoidManager(Context &ctx, int nb = 20) : ctx(ctx), nb_boids(nb) {
             srand (time(NULL));
@@ -43,14 +44,21 @@ class BoidManager {
         }
 
         void update() {
+            // if (mouse_leader) {
+            double xpos, ypos;
+            glfwGetCursorPos(ctx.window, &xpos, &ypos);
+            glm::vec2 cpos = {xpos, ctx.win_height - ypos};
+
+            //std::cout << "pos x = " << cpos.x << "pos y = " << cpos.y << std::endl;
             for (int i = 0; i < nb_boids; i++)
             {
                 glm::vec2 sep = separation(i, boids) * fseparation;
                 glm::vec2 ali = align(i, boids) * falignment;
                 glm::vec2 coh = cohesion(i, boids) * fcohesion;
+                glm::vec2 cursor = follow_cursor(i, cpos);
 
                 boids[i].acceleration = {0.0f, 0.0f};
-                boids[i].acceleration = sep + ali + coh;
+                boids[i].acceleration = sep + ali + coh + cursor;
                 boids[i].velocity += boids[i].acceleration;
                 boids[i].velocity = glm::normalize(boids[i].velocity) * fspeed;
 
@@ -74,9 +82,9 @@ class BoidManager {
         void default_fvalues()
         {
             fspeed = 5.0f;
-            fseparation = 0.3f;
-            falignment = 0.01f;
-            fcohesion = 0.004f;
+            fseparation = 0.4f;
+            falignment = 0.1f;
+            fcohesion = 0.006f;
         }
     private:
         Context &ctx;
@@ -100,7 +108,7 @@ class BoidManager {
             if (total > 0)
             {
                 steering /= total;
-                steering -= boids[i].velocity;  
+                steering -= boids[i].velocity; 
             }
             return steering;
         }
@@ -151,6 +159,17 @@ class BoidManager {
                 steering -= boids[i].velocity;
             }
             return steering;
+        }
+
+        glm::vec2 follow_cursor(int i, glm::vec2 cpos)
+        {
+            glm::vec2 cursor = {0, 0};
+            if (mouse_leader) {
+                glm::vec2 diff = (cpos - boids[i].position);
+                float d = glm::length(diff);
+                cursor = glm::normalize(diff) * std::min(0.5f, 30.0f/d);
+            }
+            return cursor;
         }
 
         void edges(Boid &boid)
