@@ -1,2 +1,11 @@
 # boids2D
-BOIDS
+
+![Preview](preview.gif)
+
+```
+mkdir build
+cd build
+cmake ..
+```
+
+
