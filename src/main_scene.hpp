@@ -29,5 +29,4 @@ class MainScene : public IScene {
         float lastX = ctx.win_width / 2.0f;
         float lastY = ctx.win_height / 2.0f;
         bool firstMouse = true;
-        glm::vec3 lightPos;
 };
